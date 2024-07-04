@@ -5,7 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voting Page</title>
     <style>
-        /* seu código CSS aqui */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #d9534f;
+            margin: 20px 0;
+        }
+        p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        #totalVotes {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        #specialMessage {
+            font-family: "Courier New", Courier, monospace;
+            margin-top: 20px;
+            color: #333;
+        }
+        #note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -21,41 +86,24 @@
     </div>
     
     <script>
-        // URL do seu backend
-        const backendUrl = 'https://seu-servidor.com/api/votos';
-
         // Verifica se o dispositivo já votou
         if (localStorage.getItem('hasVoted')) {
             document.getElementById('message').innerText = 'Você já votou!';
             document.getElementById('voteButton').disabled = true;
         }
 
-        // Obtém o total de votos do servidor
-        fetch(backendUrl)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('totalVotes').innerText = 'Total de votos: ' + data.totalVotes;
-            });
+        // Simulação de um contador de votos no servidor
+        let totalVotes = parseInt(localStorage.getItem('totalVotes')) || 0;
+        document.getElementById('totalVotes').innerText = 'Total de votos: ' + totalVotes;
 
         document.getElementById('voteButton').addEventListener('click', function() {
             if (!localStorage.getItem('hasVoted')) {
-                fetch(backendUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ voto: true })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    localStorage.setItem('hasVoted', 'true');
-                    document.getElementById('message').innerText = 'Obrigado por votar!';
-                    document.getElementById('totalVotes').innerText = 'Total de votos: ' + data.totalVotes;
-                    document.getElementById('voteButton').disabled = true;
-                })
-                .catch(error => {
-                    console.error('Erro ao votar:', error);
-                });
+                localStorage.setItem('hasVoted', 'true');
+                totalVotes++;
+                localStorage.setItem('totalVotes', totalVotes);
+                document.getElementById('message').innerText = 'Obrigado por votar!';
+                document.getElementById('totalVotes').innerText = 'Total de votos: ' + totalVotes;
+                document.getElementById('voteButton').disabled = true;
             } else {
                 document.getElementById('message').innerText = 'Você já votou!';
             }
@@ -63,25 +111,3 @@
     </script>
 </body>
 </html>
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const port = 3000;
-
-app.use(cors());
-app.use(express.json());
-
-let totalVotes = 0;
-
-app.get('/api/votos', (req, res) => {
-    res.json({ totalVotes });
-});
-
-app.post('/api/votos', (req, res) => {
-    totalVotes++;
-    res.json({ totalVotes });
-});
-
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
